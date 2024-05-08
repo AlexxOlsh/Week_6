@@ -1,5 +1,3 @@
-import asyncio
-
 import pytest
 from main import cache, slow_function, MyClass, async_func
 
@@ -23,7 +21,6 @@ async def test_cache_async():
     assert await async_func(1) == 1
     # assert await async_func(1) == 1
     assert len(cache.data) == 1
-    asyncio.sleep(2)
 
     cache.invalidate(async_func)
     assert len(cache.data) == 0
