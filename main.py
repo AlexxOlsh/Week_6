@@ -7,15 +7,29 @@ class Cache:
         self.data = {}
 
     def __call__(self, func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            name = func.__name__
-            if name in self.data:
-                return self.data[func.__name__]
-            else:
-                result = func(*args, **kwargs)
-                self.data[func.__name__] = result
-                return result
+        if asyncio.iscoroutinefunction(func):
+            @wraps(func)
+            async def wrapper(*args, **kwargs):
+                name = func.__name__
+                if name in self.data:
+                    return self.data[name]
+                else:
+                    coro = func(*args, **kwargs)
+                    result = await coro
+
+                    self.data[func.__name__] = result
+                    return result
+        else:
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                name = func.__name__
+                if name in self.data:
+                    return self.data[name]
+                else:
+                    result = func(*args, **kwargs)
+                    self.data[func.__name__] = result
+                    return result
+
         return wrapper
 
     def invalidate(self, func):
@@ -39,5 +53,4 @@ class MyClass:
 
 @cache
 async def async_func(arg):
-    await asyncio.sleep(1)
     return arg

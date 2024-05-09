@@ -16,10 +16,15 @@ def test_cache():
     assert len(cache.data) == 1
 
 
+@pytest.fixture
+def clear_cache():
+    cache.data = {}
+
+
 @pytest.mark.asyncio
-async def test_cache_async():
+async def test_cache_async(clear_cache):
     assert await async_func(1) == 1
-    # assert await async_func(1) == 1
+    assert await async_func(1) == 1
     assert len(cache.data) == 1
 
     cache.invalidate(async_func)
